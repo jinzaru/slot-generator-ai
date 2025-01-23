@@ -483,14 +483,14 @@ function createNodeMenu(node) {
                 updateConnections();
             }
 
-            function handleMouseUp() {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
-                
-                if (!isDragging) {
-                    setTimeout(() => createNodeMenu(node), 0);
-                }
+        function handleMouseUp() {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            
+            if (!isDragging && !node.classList.contains('input-data-node')) {
+                setTimeout(() => createNodeMenu(node), 0);
             }
+        }
 
             document.addEventListener('mousemove', handleMouseMove);
             document.addEventListener('mouseup', handleMouseUp);
