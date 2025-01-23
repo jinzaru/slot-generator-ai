@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slot Generator 1.0</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #2d2d2d;
+            height: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid #3d3d3d;
+            z-index: 1000;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-img {
+            width: 35px;
+            height: 35px;
+            background-color: #4a4a4a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            width: 250px;
+            background-color: #2d2d2d;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border-right: 1px solid #3d3d3d;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 30px 8px 10px;
+            background-color: #3d3d3d;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .menu-item {
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-item:hover {
+            background-color: #3d3d3d;
+            border-radius: 5px;
+        }
+
+        .workspace {
+            flex: 1;
+            background-color: #1a1a1a;
+            background-size: 20px 20px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .node {
+            min-width: 200px;
+            height: 50px;
+            background-color: #3d3d3d;
+            border: 1px solid #4a4a4a;
+            border-radius: 5px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            cursor: move;
+            user-select: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .node-text {
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .node-resize {
+            width: 10px;
+            height: 100%;
+            position: absolute;
+            right: 0;
+            top: 0;
+            cursor: col-resize;
+            background-color: transparent;
+        }
+
+        .node-menu {
+            position: absolute;
+            background-color: #3d3d3d;
+            border: 1px solid #4a4a4a;
+            border-radius: 5px;
+            padding: 5px 0;
+            z-index: 1000;
+            min-width: 200px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            margin-left: 5px;
+        }
+
+        .node-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .node-menu-item:hover {
+            background-color: #4a4a4a;
+        }
+
+        .node-add-btn {
+            width: 24px;
+            height: 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .connection {
+            stroke: #6d6d6d;
+            stroke-width: 2;
+            pointer-events: none;
+            fill: none;
+        }
+
+        .node-port {
+            width: 10px;
+            height: 10px;
+            background-color: #6d6d6d;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .node-port-out {
+            right: -5px;
+        }
+
+        .node-port-in {
+            left: -5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">Slot Generator 1.0</div>
+        <div class="profile">
+            <div class="profile-img">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <span>JP</span>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="left-panel">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-list"></i>
+                <span>Slot list</span>
+            </div>
+        </div>
+        <div class="workspace" id="workspace">
+            <svg id="connectionLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
+        </div>
+    </div>
+
+    <script>
+        const workspace = document.getElementById('workspace');
+        const connectionLayer = document.getElementById('connectionLayer');
+        let nodeConnections = [];
+        const NODE_SPACING = 250;
+
+        function createInitialNode() {
+            const node = document.createElement('div');
+            node.className = 'node';
+            node.innerHTML = `
+                <span class="node-text">Node</span>
+                <div class="node-port node-port-out"></div>
+                <div class="node-resize"></div>
+            `;
+            
+            const workspaceRect = workspace.getBoundingClientRect();
+            node.style.left = `${(workspaceRect.width - 200) / 2}px`;
+            node.style.top = `${(workspaceRect.height - 50) / 2}px`;
+            
+            workspace.appendChild(node);
+            setupNodeEvents(node);
+            return node;
+        }
+
+        function setupNodeEvents(node) {
+            node.addEventListener('mousedown', startDrag);
+            const resizer = node.querySelector('.node-resize');
+            if (resizer) {
+                resizer.addEventListener('mousedown', startResize);
+            }
+        }
+
+        function createNodeMenu(node) {
+            const nodeRect = node.getBoundingClientRect();
+            const workspaceRect = workspace.getBoundingClientRect();
+            
+            const menu = document.createElement('div');
+            menu.className = 'node-menu';
+            menu.style.left = `${nodeRect.right - workspaceRect.left + 5}px`;
+            menu.style.top = `${nodeRect.top - workspaceRect.top}px`;
+
+            const options = [
+                'Analyze Reference Slot to Copy',
+                'Visual Sequel to Slot',
+                'Math Sequel to Slot',
+                'Generate Original Slot'
+            ];
+
+            options.forEach(option => {
+                const item = document.createElement('div');
+                item.className = 'node-menu-item';
+                item.textContent = option;
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectMenuItem(node, option);
+                });
+                menu.appendChild(item);
+            });
+
+            workspace.appendChild(menu);
+        }
+
+        function selectMenuItem(node, option) {
+            const nodeText = node.querySelector('.node-text');
+            nodeText.textContent = option;
+            
+            if (!node.querySelector('.node-add-btn')) {
+                const addBtn = document.createElement('button');
+                addBtn.className = 'node-add-btn';
+                addBtn.textContent = '+';
+                addBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    createNewNodeAndConnect(node);
+                });
+                node.appendChild(addBtn);
+            }
+            
+            closeNodeMenu();
+        }
+
+        function createNewNodeAndConnect(sourceNode) {
+            const newNode = document.createElement('div');
+            newNode.className = 'node';
+            newNode.innerHTML = `
+                <span class="node-text">Node</span>
+                <div class="node-port node-port-in"></div>
+                <div class="node-port node-port-out"></div>
+                <div class="node-resize"></div>
+            `;
+
+            const sourceRect = sourceNode.getBoundingClientRect();
+            const workspaceRect = workspace.getBoundingClientRect();
+
+            newNode.style.left = `${sourceRect.right - workspaceRect.left + NODE_SPACING}px`;
+            newNode.style.top = `${sourceRect.top - workspaceRect.top}px`;
+
+            workspace.appendChild(newNode);
+            setupNodeEvents(newNode);
+            createConnection(sourceNode, newNode);
+        }
+
+        function createConnection(sourceNode, targetNode) {
+            const connection = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            connection.setAttribute('class', 'connection');
+            connectionLayer.appendChild(connection);
+            
+            nodeConnections.push({
+                source: sourceNode,
+                target: targetNode,
+                element: connection
+            });
+            
+            updateConnections();
+        }
+
+        function updateConnections() {
+            nodeConnections.forEach(conn => {
+                const sourceRect = conn.source.getBoundingClientRect();
+                const targetRect = conn.target.getBoundingClientRect();
+                const workspaceRect = workspace.getBoundingClientRect();
+
+                const x1 = sourceRect.right - workspaceRect.left;
+                const y1 = sourceRect.top + sourceRect.height/2 - workspaceRect.top;
+                const x2 = targetRect.left - workspaceRect.left;
+                const y2 = targetRect.top + targetRect.height/2 - workspaceRect.top;
+
+                const dx = x2 - x1;
+                const controlPointX = dx * 0.5;
+
+                const pathData = `M ${x1},${y1} 
+                                C ${x1 + controlPointX},${y1} 
+                                  ${x2 - controlPointX},${y2} 
+                                  ${x2},${y2}`;
+
+                conn.element.setAttribute('d', pathData);
+            });
+        }
+
+        function startDrag(e) {
+            if (e.target.className === 'node-resize' || e.target.className === 'node-add-btn') return;
+            
+            const node = e.target.closest('.node');
+            if (!node) return;
+
+            let isDragging = false;
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const startLeft = parseInt(node.style.left);
+            const startTop = parseInt(node.style.top);
+
+            closeNodeMenu();
+
+            function handleMouseMove(e) {
+                isDragging = true;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                
+                node.style.left = `${startLeft + dx}px`;
+                node.style.top = `${startTop + dy}px`;
+                
+                updateConnections();
+            }
+
+            function handleMouseUp() {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+                
+                if (!isDragging) {
+                    setTimeout(() => createNodeMenu(node), 0);
+                }
+            }
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+
+        function startResize(e) {
+            e.stopPropagation();
+            const node = e.target.parentNode;
+            const startX = e.clientX;
+            const startWidth = parseInt(getComputedStyle(node).width);
+
+            function handleMouseMove(e) {
+                const dx = e.clientX - startX;
+                const newWidth = Math.max(200, startWidth + dx);
+                node.style.width = `${newWidth}px`;
+                updateConnections();
+            }
+
+            function handleMouseUp() {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+            }
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+
+        function closeNodeMenu() {
+            const existingMenu = document.querySelector('.node-menu');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+        }
+
+        // 문서 클릭 시 메뉴 닫기
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.node-menu') && !e.target.closest('.node')) {
+                closeNodeMenu();
+            }
+        });
+
+        // 윈도우 크기 변경 시 연결선 업데이트
+        window.addEventListener('resize', updateConnections);
+
+        // 초기 노드 생성
+        window.addEventListener('load', createInitialNode);
+    </script>
+</body>
+</html>
