@@ -266,35 +266,42 @@
             }
         }
 
-        function createNodeMenu(node) {
-            const nodeRect = node.getBoundingClientRect();
-            const workspaceRect = workspace.getBoundingClientRect();
-            
-            const menu = document.createElement('div');
-            menu.className = 'node-menu';
-            menu.style.left = `${nodeRect.right - workspaceRect.left + 5}px`;
-            menu.style.top = `${nodeRect.top - workspaceRect.top}px`;
+function createNodeMenu(node) {
+    const nodeRect = node.getBoundingClientRect();
+    const workspaceRect = workspace.getBoundingClientRect();
+    
+    const menu = document.createElement('div');
+    menu.className = 'node-menu';
+    menu.style.left = `${nodeRect.right - workspaceRect.left + 5}px`;
+    menu.style.top = `${nodeRect.top - workspaceRect.top}px`;
 
-            const options = [
-                'Analyze Reference Slot to Copy',
-                'Visual Sequel to Slot',
-                'Math Sequel to Slot',
-                'Generate Original Slot'
-            ];
-
-            options.forEach(option => {
-                const item = document.createElement('div');
-                item.className = 'node-menu-item';
-                item.textContent = option;
-                item.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    selectMenuItem(node, option);
-                });
-                menu.appendChild(item);
-            });
-
-            workspace.appendChild(menu);
+    let options;
+    const parentConnection = nodeConnections.find(conn => conn.target === node);
+    
+    if (parentConnection) {
+        const parentText = parentConnection.source.querySelector('.node-text').textContent;
+        if (parentText === 'Analyze Reference Slot to Copy') {
+            options = ['Input data', 'Prompt', 'Default data setting'];
+        } else {
+            options = ['Analyze Reference Slot to Copy', 'Visual Sequel to Slot', 'Math Sequel to Slot', 'Generate Original Slot'];
         }
+    } else {
+        options = ['Analyze Reference Slot to Copy', 'Visual Sequel to Slot', 'Math Sequel to Slot', 'Generate Original Slot'];
+    }
+
+    options.forEach(option => {
+        const item = document.createElement('div');
+        item.className = 'node-menu-item';
+        item.textContent = option;
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectMenuItem(node, option);
+        });
+        menu.appendChild(item);
+    });
+
+    workspace.appendChild(menu);
+}
 
         function selectMenuItem(node, option) {
             const nodeText = node.querySelector('.node-text');
