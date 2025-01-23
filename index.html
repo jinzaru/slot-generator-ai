@@ -181,7 +181,26 @@
             font-size: 16px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-
+        .upload-section {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .upload-panel-add-btn {
+            width: 24px;
+            height: 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+        }
         .connection {
             stroke: #6d6d6d;
             stroke-width: 2;
@@ -340,15 +359,28 @@ function createNodeMenu(node) {
         node.className = 'node input-data-node';
         node.innerHTML = `
             <div class="input-data-header">Input data</div>
-            <div class="upload-panel" onclick="handleFileUpload('video')">
-                <i class="fas fa-video fa-2x"></i>
-                <div>Video upload</div>
+            <div class="upload-section">
+                <div class="upload-panel" onclick="handleFileUpload('video')">
+                    <i class="fas fa-video fa-2x"></i>
+                    <div>Video upload</div>
+                </div>
+                <button class="upload-panel-add-btn">+</button>
             </div>
-            <div class="upload-panel" onclick="handleFileUpload('screenshot')">
-                <i class="fas fa-image fa-2x"></i>
-                <div>Screenshot upload</div>
+            <div class="upload-section">
+                <div class="upload-panel" onclick="handleFileUpload('screenshot')">
+                    <i class="fas fa-image fa-2x"></i>
+                    <div>Screenshot upload</div>
+                </div>
+                <button class="upload-panel-add-btn">+</button>
             </div>
         `;
+        // 드래그만 가능하도록 이벤트 리스너 제거 및 재설정
+        node.removeEventListener('mousedown', startDrag);
+        node.addEventListener('mousedown', (e) => {
+            if (!e.target.closest('.upload-panel') && !e.target.closest('.upload-panel-add-btn')) {
+                startDrag(e);
+            }
+        });
     } else {
         const nodeText = node.querySelector('.node-text');
         nodeText.textContent = option;
