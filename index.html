@@ -18,6 +18,44 @@
             overflow: hidden;
         }
 
+        .workspace-scale-dropdown {
+    position: fixed;
+    top: 60px;
+    left: 300px;
+    z-index: 1001;
+}
+
+        .workspace-scale-btn {
+            width: 50px;
+            height: 40px;
+            background-color: #3d3d3d;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .workspace-scale-options {
+            display: none;
+            flex-direction: column;
+        }
+
+        .workspace-scale-dropdown.open .workspace-scale-options {
+            display: flex;
+        }
+
+        .workspace-scale-option {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #2d2d2d;
+        }
+
+        .workspace-scale-option:hover {
+            background-color: #3d3d3d;
+        }
+
         .header {
             background-color: #2d2d2d;
             height: 50px;
@@ -54,6 +92,7 @@
             display: flex;
             flex: 1;
             overflow: hidden;
+            position: relative;
         }
 
         .left-panel {
@@ -64,8 +103,8 @@
             flex-direction: column;
             gap: 20px;
             border-right: 1px solid #3d3d3d;
+            z-index: 1;
         }
-
         .search-container {
             position: relative;
         }
@@ -102,15 +141,31 @@
         }
 
         .workspace {
-            flex: 1;
-            background-color: #1a1a1a;
-            background-size: 20px 20px;
-            background-image: 
-                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            position: relative;
-            overflow: hidden;
-        }
+    flex: 1;
+    background-color: #1a1a1a;
+    position: relative;
+    overflow: hidden;
+}
+
+.workspace-content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-origin: 0 0;
+}
+
+.grid-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: 20px 20px;
+    background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    pointer-events: none;
+}
 
         .node {
             min-width: 200px;
@@ -181,6 +236,7 @@
             font-size: 16px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
+
         .upload-section {
             position: relative;
             display: flex;
@@ -201,46 +257,49 @@
             cursor: pointer;
             font-size: 16px;
         }
+
         .connection {
             stroke: #6d6d6d;
             stroke-width: 2;
             pointer-events: none;
             fill: none;
         }
-.input-data-node {
-    min-width: 800px;  /* 600px에서 800px로 증가 */
-    height: auto;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    padding: 15px;
-}
 
-.input-data-header {
-    grid-column: 1 / -1;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    padding: 0 15px;
-    background-color: #2d2d2d;
-    border-radius: 5px;
-}
+        .input-data-node {
+            min-width: 800px;
+            height: auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 15px;
+        }
 
-.upload-panel {
-    height: 200px;
-    width: 250px;  /* 너비 추가 */
-    background-color: #2d2d2d;
-    border-radius: 5px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
+        .input-data-header {
+            grid-column: 1 / -1;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            background-color: #2d2d2d;
+            border-radius: 5px;
+        }
 
-.upload-panel:hover {
-    background-color: #3d3d3d;
-}
+        .upload-panel {
+            height: 200px;
+            width: 250px;
+            background-color: #2d2d2d;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .upload-panel:hover {
+            background-color: #3d3d3d;
+        }
+
         .node-port {
             width: 10px;
             height: 10px;
@@ -258,9 +317,33 @@
         .node-port-in {
             left: -5px;
         }
+
+        .analyze-start-section {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .analyze-start-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+        }
+
+        .analyze-start-btn:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
-<body>
+    <body>
     <div class="header">
         <div class="header-title">Slot Generator 1.0</div>
         <div class="profile">
@@ -282,33 +365,45 @@
             </div>
         </div>
         <div class="workspace" id="workspace">
+        <div class="grid-background"></div>
+        <div class="workspace-content" id="workspaceContent">
             <svg id="connectionLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
         </div>
     </div>
 
     <script>
         const workspace = document.getElementById('workspace');
+        const workspaceContent = document.getElementById('workspaceContent');
         const connectionLayer = document.getElementById('connectionLayer');
         let nodeConnections = [];
         const NODE_SPACING = 250;
 
         function createInitialNode() {
-            const node = document.createElement('div');
-            node.className = 'node';
-            node.innerHTML = `
-                <span class="node-text">Node</span>
-                <div class="node-port node-port-out"></div>
-                <div class="node-resize"></div>
-            `;
-            
-            const workspaceRect = workspace.getBoundingClientRect();
-            node.style.left = `${(workspaceRect.width - 200) / 2}px`;
-            node.style.top = `${(workspaceRect.height - 50) / 2}px`;
-            
-            workspace.appendChild(node);
-            setupNodeEvents(node);
-            return node;
-        }
+   const node = document.createElement('div');
+   node.className = 'node';
+   node.innerHTML = `
+       <span class="node-text">Node</span>
+       <div class="node-port node-port-out"></div>
+       <div class="node-resize"></div>
+   `;
+   
+   node.style.left = '300px';  // 네비게이션 패널 근처
+   node.style.top = '400px';
+   
+   workspaceContent.appendChild(node);
+   setupNodeEvents(node);
+   return node;
+}
+        function scaleWorkspace(scale) {
+    const scaleValue = scale/100;
+    workspaceContent.style.transform = `scale(${scaleValue})`;
+    
+    // Update grid size based on scale
+    const gridBackground = document.querySelector('.grid-background');
+    gridBackground.style.backgroundSize = `${20 * scaleValue}px ${20 * scaleValue}px`;
+    
+    updateConnections();
+}
 
         function setupNodeEvents(node) {
             node.addEventListener('mousedown', startDrag);
@@ -318,88 +413,92 @@
             }
         }
 
-function createNodeMenu(node) {
-    const nodeRect = node.getBoundingClientRect();
-    const workspaceRect = workspace.getBoundingClientRect();
-    
-    const menu = document.createElement('div');
-    menu.className = 'node-menu';
-    menu.style.left = `${nodeRect.right - workspaceRect.left + 5}px`;
-    menu.style.top = `${nodeRect.top - workspaceRect.top}px`;
+        function createNodeMenu(node) {
+            const nodeRect = node.getBoundingClientRect();
+   const workspaceRect = workspaceContent.getBoundingClientRect();
+   const scale = parseFloat(workspaceContent.style.transform.replace('scale(', '')) || 1;
+   
+   const menu = document.createElement('div');
+   menu.className = 'node-menu';
+   menu.style.left = `${(nodeRect.right - workspaceRect.left) / scale + 5}px`;
+   menu.style.top = `${(nodeRect.top - workspaceRect.top) / scale}px`;
 
-    let options;
-    const parentConnection = nodeConnections.find(conn => conn.target === node);
-    
-    if (parentConnection) {
-        const parentText = parentConnection.source.querySelector('.node-text').textContent;
-        if (parentText === 'Analyze Reference Slot to Copy') {
-            options = ['Input data', 'Prompt', 'Default data setting'];
-        } else {
-            options = ['Analyze Reference Slot to Copy', 'Visual Sequel to Slot', 'Math Sequel to Slot', 'Generate Original Slot'];
-        }
-    } else {
-        options = ['Analyze Reference Slot to Copy', 'Visual Sequel to Slot', 'Math Sequel to Slot', 'Generate Original Slot'];
-    }
-
-    options.forEach(option => {
-        const item = document.createElement('div');
-        item.className = 'node-menu-item';
-        item.textContent = option;
-        item.addEventListener('click', (e) => {
-            e.stopPropagation();
-            selectMenuItem(node, option);
-        });
-        menu.appendChild(item);
-    });
-
-    workspace.appendChild(menu);
-}
-
-        function selectMenuItem(node, option) {
-    if (option === 'Input data') {
-        node.className = 'node input-data-node';
-        node.innerHTML = `
-            <div class="input-data-header">Input data</div>
-            <div class="upload-section">
-                <div class="upload-panel" onclick="handleFileUpload('video')">
-                    <i class="fas fa-video fa-2x"></i>
-                    <div>Video upload</div>
-                </div>
-                <button class="upload-panel-add-btn">+</button>
-            </div>
-            <div class="upload-section">
-                <div class="upload-panel" onclick="handleFileUpload('screenshot')">
-                    <i class="fas fa-image fa-2x"></i>
-                    <div>Screenshot upload</div>
-                </div>
-                <button class="upload-panel-add-btn">+</button>
-            </div>
-        `;
-        // 드래그만 가능하도록 이벤트 리스너 제거 및 재설정
-        node.removeEventListener('mousedown', startDrag);
-        node.addEventListener('mousedown', (e) => {
-            if (!e.target.closest('.upload-panel') && !e.target.closest('.upload-panel-add-btn')) {
-                startDrag(e);
+            let options;
+            const parentConnection = nodeConnections.find(conn => conn.target === node);
+            
+            if (parentConnection) {
+                const parentText = parentConnection.source.querySelector('.node-text').textContent;
+                if (parentText === 'Analyze Reference Slot to Copy') {
+                    options = ['Input data', 'Prompt', 'Default data setting'];
+                } else {
+                    options = ['Analyze Reference Slot to Copy', 'Visual Sequel to Slot', 'Math Sequel to Slot', 'Generate Original Slot'];
+                }
+            } else {
+                options = ['Analyze Reference Slot to Copy', 'Visual Sequel to Slot', 'Math Sequel to Slot', 'Generate Original Slot'];
             }
-        });
-    } else {
-        const nodeText = node.querySelector('.node-text');
-        nodeText.textContent = option;
-        
-        if (!node.querySelector('.node-add-btn')) {
-            const addBtn = document.createElement('button');
-            addBtn.className = 'node-add-btn';
-            addBtn.textContent = '+';
-            addBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                createNewNodeAndConnect(node);
+
+            options.forEach(option => {
+                const item = document.createElement('div');
+                item.className = 'node-menu-item';
+                item.textContent = option;
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectMenuItem(node, option);
+                });
+                menu.appendChild(item);
             });
-            node.appendChild(addBtn);
+
+            workspaceContent.appendChild(menu);
         }
-    }
-    
-    closeNodeMenu();
-}
+        function selectMenuItem(node, option) {
+            if (option === 'Input data') {
+                node.className = 'node input-data-node';
+                node.innerHTML = `
+                    <div class="input-data-header">Input data</div>
+                    <div class="upload-section">
+                        <div class="upload-panel" onclick="handleFileUpload('video')">
+                            <i class="fas fa-video fa-2x"></i>
+                            <div>Video upload</div>
+                        </div>
+                        <button class="upload-panel-add-btn video-add-btn">+</button>
+                    </div>
+                    <div class="upload-section">
+                        <div class="upload-panel" onclick="handleFileUpload('screenshot')">
+                            <i class="fas fa-image fa-2x"></i>
+                            <div>Screenshot upload</div>
+                        </div>
+                        <button class="upload-panel-add-btn screenshot-add-btn">+</button>
+                    </div>
+                    <div class="analyze-start-section">
+                        <button class="analyze-start-btn">
+                            <i class="fas fa-play"></i> Analyze Start
+                        </button>
+                    </div>
+                `;
+                node.removeEventListener('mousedown', startDrag);
+                node.addEventListener('mousedown', (e) => {
+                    if (!e.target.closest('.upload-panel') && !e.target.closest('.upload-panel-add-btn')) {
+                        startDrag(e);
+                    }
+                });
+            } else {
+                const nodeText = node.querySelector('.node-text');
+                nodeText.textContent = option;
+                
+                if (!node.querySelector('.node-add-btn')) {
+                    const addBtn = document.createElement('button');
+                    addBtn.className = 'node-add-btn';
+                    addBtn.textContent = '+';
+                    addBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        createNewNodeAndConnect(node);
+                    });
+                    node.appendChild(addBtn);
+                }
+            }
+            
+            closeNodeMenu();
+        }
 
         function createNewNodeAndConnect(sourceNode) {
             const newNode = document.createElement('div');
@@ -412,12 +511,12 @@ function createNodeMenu(node) {
             `;
 
             const sourceRect = sourceNode.getBoundingClientRect();
-            const workspaceRect = workspace.getBoundingClientRect();
+            const workspaceRect = workspaceContent.getBoundingClientRect();
 
             newNode.style.left = `${sourceRect.right - workspaceRect.left + NODE_SPACING}px`;
             newNode.style.top = `${sourceRect.top - workspaceRect.top}px`;
 
-            workspace.appendChild(newNode);
+            workspaceContent.appendChild(newNode);
             setupNodeEvents(newNode);
             createConnection(sourceNode, newNode);
         }
@@ -437,25 +536,22 @@ function createNodeMenu(node) {
         }
 
         function updateConnections() {
-            nodeConnections.forEach(conn => {
-                const sourceRect = conn.source.getBoundingClientRect();
-                const targetRect = conn.target.getBoundingClientRect();
-                const workspaceRect = workspace.getBoundingClientRect();
+   nodeConnections.forEach(conn => {
+       const sourceRect = conn.source.getBoundingClientRect();
+       const targetRect = conn.target.getBoundingClientRect();
+       const workspaceRect = workspaceContent.getBoundingClientRect();
+       const scale = parseFloat(workspaceContent.style.transform.replace('scale(', '')) || 1;
 
-                const x1 = sourceRect.right - workspaceRect.left;
-                const y1 = sourceRect.top + sourceRect.height/2 - workspaceRect.top;
-                const x2 = targetRect.left - workspaceRect.left;
-                const y2 = targetRect.top + targetRect.height/2 - workspaceRect.top;
+       const x1 = (sourceRect.right - workspaceRect.left) / scale;
+       const y1 = (sourceRect.top + sourceRect.height/2 - workspaceRect.top) / scale;
+       const x2 = (targetRect.left - workspaceRect.left) / scale;
+       const y2 = (targetRect.top + targetRect.height/2 - workspaceRect.top) / scale;
 
-                const dx = x2 - x1;
-                const controlPointX = dx * 0.5;
+       const dx = x2 - x1;
+       const controlPointX = dx * 0.5;
 
-                const pathData = `M ${x1},${y1} 
-                                C ${x1 + controlPointX},${y1} 
-                                  ${x2 - controlPointX},${y2} 
-                                  ${x2},${y2}`;
-
-                conn.element.setAttribute('d', pathData);
+       const pathData = `M ${x1},${y1} C ${x1 + controlPointX},${y1} ${x2 - controlPointX},${y2} ${x2},${y2}`;
+       conn.element.setAttribute('d', pathData);
             });
         }
 
@@ -484,14 +580,14 @@ function createNodeMenu(node) {
                 updateConnections();
             }
 
-        function handleMouseUp() {
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
-    
-    if (!isDragging && !node.querySelector('.input-data-header')) {
-        setTimeout(() => createNodeMenu(node), 0);
-    }
-}
+            function handleMouseUp() {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+                
+                if (!isDragging && !node.querySelector('.input-data-header')) {
+                    setTimeout(() => createNodeMenu(node), 0);
+                }
+            }
 
             document.addEventListener('mousemove', handleMouseMove);
             document.addEventListener('mouseup', handleMouseUp);
@@ -526,24 +622,69 @@ function createNodeMenu(node) {
             }
         }
 
-        // 문서 클릭 시 메뉴 닫기
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.node-menu') && !e.target.closest('.node')) {
-                closeNodeMenu();
-            }
-        });
-
-        // 윈도우 크기 변경 시 연결선 업데이트
-        window.addEventListener('resize', updateConnections);
         function handleFileUpload(type) {
             const input = document.createElement('input');
             input.type = 'file';
             input.multiple = true;
             input.accept = type === 'video' ? 'video/*' : 'image/*';
             input.click();
-}
-        // 초기 노드 생성
-        window.addEventListener('load', createInitialNode);
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.node-menu') && !e.target.closest('.node')) {
+                closeNodeMenu();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            updateConnections();
+        });
+
+        function createWorkspaceScaleDropdown() {
+            const dropdown = document.createElement('div');
+            dropdown.className = 'workspace-scale-dropdown';
+            dropdown.innerHTML = `
+                <button class="workspace-scale-btn">100%</button>
+                <div class="workspace-scale-options">
+                    <div class="workspace-scale-option" data-scale="100">100%</div>
+                    <div class="workspace-scale-option" data-scale="80">80%</div>
+                    <div class="workspace-scale-option" data-scale="70">70%</div>
+                    <div class="workspace-scale-option" data-scale="50">50%</div>
+                </div>
+            `;
+            
+            const scaleBtn = dropdown.querySelector('.workspace-scale-btn');
+            scaleBtn.addEventListener('click', () => {
+                dropdown.classList.toggle('open');
+            });
+            
+            dropdown.querySelectorAll('.workspace-scale-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    const scale = e.target.dataset.scale;
+                    scaleWorkspace(scale);
+                    scaleBtn.textContent = `${scale}%`;
+                    dropdown.classList.remove('open');
+                });
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                }
+            });
+            
+            return dropdown;
+        }
+
+        window.addEventListener('load', () => {
+            const workspaceContainer = document.querySelector('.main-container');
+    const dropdown = createWorkspaceScaleDropdown();
+    workspaceContainer.appendChild(dropdown);
+    createInitialNode();
+    scaleWorkspace(80); // 80% 크기로 시작
+    dropdown.querySelector('.workspace-scale-btn').textContent = '80%';
+});
+
     </script>
 </body>
 </html>
