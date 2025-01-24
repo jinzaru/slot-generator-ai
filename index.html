@@ -337,7 +337,64 @@
             gap: 10px;
             font-size: 16px;
         }
+        .prompt-node {
+   min-width: 400px;
+   min-height: 400px;
+   background: #2f4f2f;
+   border-radius: 20px;
+   border: 2px solid #3c5a3c;
+}
 
+        .prompt-header {
+           height: 50px;
+           padding: 0 20px;
+           background: #1f3f1f;
+           border-radius: 18px 18px 0 0;
+           color: #fff;
+           font-size: 18px;
+           border-bottom: 1px solid #3c5a3c;
+        }
+
+        .chat-container {
+           height: calc(100% - 70px);
+           margin: 10px;
+           display: flex;
+           flex-direction: column;
+        }
+
+        .chat-messages {
+           flex: 1;
+           background: #1a1a1a;
+           border-radius: 10px;
+           padding: 15px;
+           margin-bottom: 10px;
+        }
+
+        .chat-input-container {
+           height: 50px;
+           padding: 0 10px;
+           display: flex;
+           gap: 10px;
+        }
+
+        .chat-input {
+           flex: 1;
+           background: #1a1a1a;
+           border: 1px solid #3c5a3c;
+           border-radius: 8px;
+           color: #fff;
+           font-size: 16px;
+        }
+
+        .chat-send-btn {
+           width: 50px;
+           background: #3c5a3c;
+           border-radius: 8px;
+        }
+
+        .chat-send-btn:hover {
+           background: #4a724a;
+        }
         .analyze-start-btn:hover {
             background-color: #45a049;
         }
@@ -452,53 +509,68 @@
         }
         function selectMenuItem(node, option) {
             if (option === 'Input data') {
-                node.className = 'node input-data-node';
-                node.innerHTML = `
-                    <div class="input-data-header">Input data</div>
-                    <div class="upload-section">
-                        <div class="upload-panel" onclick="handleFileUpload('video')">
-                            <i class="fas fa-video fa-2x"></i>
-                            <div>Video upload</div>
-                        </div>
-                        <button class="upload-panel-add-btn video-add-btn">+</button>
-                    </div>
-                    <div class="upload-section">
-                        <div class="upload-panel" onclick="handleFileUpload('screenshot')">
-                            <i class="fas fa-image fa-2x"></i>
-                            <div>Screenshot upload</div>
-                        </div>
-                        <button class="upload-panel-add-btn screenshot-add-btn">+</button>
-                    </div>
-                    <div class="analyze-start-section">
-                        <button class="analyze-start-btn">
-                            <i class="fas fa-play"></i> Analyze Start
-                        </button>
-                    </div>
-                `;
-                node.removeEventListener('mousedown', startDrag);
-                node.addEventListener('mousedown', (e) => {
-                    if (!e.target.closest('.upload-panel') && !e.target.closest('.upload-panel-add-btn')) {
-                        startDrag(e);
-                    }
-                });
-            } else {
-                const nodeText = node.querySelector('.node-text');
-                nodeText.textContent = option;
-                
-                if (!node.querySelector('.node-add-btn')) {
-                    const addBtn = document.createElement('button');
-                    addBtn.className = 'node-add-btn';
-                    addBtn.textContent = '+';
-                    addBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        createNewNodeAndConnect(node);
-                    });
-                    node.appendChild(addBtn);
-                }
+        node.className = 'node input-data-node';
+        node.innerHTML = `
+            <div class="input-data-header">Input data</div>
+            <div class="upload-section">
+                <div class="upload-panel" onclick="handleFileUpload('video')">
+                    <i class="fas fa-video fa-2x"></i>
+                    <div>Video upload</div>
+                </div>
+                <button class="upload-panel-add-btn video-add-btn">+</button>
+            </div>
+            <div class="upload-section">
+                <div class="upload-panel" onclick="handleFileUpload('screenshot')">
+                    <i class="fas fa-image fa-2x"></i>
+                    <div>Screenshot upload</div>
+                </div>
+                <button class="upload-panel-add-btn screenshot-add-btn">+</button>
+            </div>
+            <div class="analyze-start-section">
+                <button class="analyze-start-btn">
+                    <i class="fas fa-play"></i> Analyze Start
+                </button>
+            </div>
+        `;
+        // Input data 이벤트 리스너
+        node.removeEventListener('mousedown', startDrag);
+        node.addEventListener('mousedown', (e) => {
+            if (!e.target.closest('.upload-panel') && !e.target.closest('.upload-panel-add-btn')) {
+                startDrag(e);
             }
-            
-            closeNodeMenu();
+        });
+    } else if (option === 'Prompt') {
+        node.className = 'node prompt-node';
+        node.innerHTML = `
+            <div class="prompt-header">Prompt</div>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input-container">
+                    <textarea class="chat-input" placeholder="Enter your message..."></textarea>
+                    <button class="chat-send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        // Prompt 이벤트 리스너 설정
+    } else {
+        const nodeText = node.querySelector('.node-text');
+        nodeText.textContent = option;
+        
+        if (!node.querySelector('.node-add-btn')) {
+            const addBtn = document.createElement('button');
+            addBtn.className = 'node-add-btn';
+            addBtn.textContent = '+';
+            addBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                createNewNodeAndConnect(node);
+            });
+            node.appendChild(addBtn);
         }
+    }
+    closeNodeMenu();
+}
 
         function createNewNodeAndConnect(sourceNode) {
             const newNode = document.createElement('div');
